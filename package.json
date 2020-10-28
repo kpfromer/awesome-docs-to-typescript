@@ -1,0 +1,25 @@
+{
+  "name": "awesomewm-doc-to-type",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "puppeteer": "^5.4.1",
+    "ts-node": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.22",
+    "@types/node": "^14.11.2",
+    "@types/puppeteer": "^3.0.2",
+    "gts": "^3.0.2",
+    "typescript": "^4.0.5"
+  },
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix"
+  }
+}
