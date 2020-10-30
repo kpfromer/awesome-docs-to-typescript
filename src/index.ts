@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import {cleanTree, parseUrl} from './docs';
-import {docSectionToInterface} from './transformer';
+import {Transformer} from './transformer';
 import {visitInterfaceSection} from './visitor';
 
 (async () => {
@@ -10,11 +10,13 @@ import {visitInterfaceSection} from './visitor';
   ).map(cleanTree);
   console.dir(items, {depth: null});
 
-  const parsed = docSectionToInterface(items[0]);
+  const transformer = new Transformer();
+
+  const parsed = transformer.run(items[0]);
   console.dir(parsed, {depth: null});
 
   await fs.writeFile(
     path.join(process.cwd(), 'out.ts'),
-    visitInterfaceSection(parsed)
+    parsed.map(section => visitInterfaceSection(section)).join('\n')
   );
 })();

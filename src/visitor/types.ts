@@ -2,8 +2,17 @@
 
 export type ASTNode<T, B = {}> = {nodeType: T} & B;
 
+export type Reference = ASTNode<
+  'reference',
+  {
+    propertyName: string;
+    interfaceName: string;
+  }
+>;
+
 export type VariableType =
   | string[]
+  | Reference
   | {
       [name: string]: VariableType;
     };
@@ -41,7 +50,7 @@ export type FunctionDecl = ASTNode<
   }
 >;
 
-export type BaseNode = FunctionDecl | Property;
+export type BaseNode = FunctionDecl | Property | Reference;
 
 export type InterfaceSection = {
   name: string;

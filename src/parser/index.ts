@@ -25,8 +25,17 @@ const tokenize = (input: string): Token[] => {
 export const parseName = (
   name: string
 ):
-  | {type: 'function'; argumentLayout: string[]; name: string; isSelf: boolean}
-  | {type: 'name'; name: string} => {
+  | {
+      type: 'function';
+      argumentLayout: string[];
+      // levels, ie "awful.thing.a" = ['awful', 'thing', 'a'];
+      name: string[];
+      isSelf: boolean;
+    }
+  | {
+      type: 'name';
+      name: string;
+    } => {
   const tokens = tokenize(name);
 
   const isFunc = tokens.some(token => token.isA('char', '('));
@@ -42,10 +51,11 @@ export const parseName = (
 
     return {
       type: 'function',
+      // todo: handle : and . differently
       name: tokens
         .slice(0, index - 1)
-        .map(token => token.text)
-        .join(''),
+        .filter(token => token.isA('id'))
+        .map(token => token.text),
       argumentLayout: args,
       isSelf: false,
     };

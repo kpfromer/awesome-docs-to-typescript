@@ -4,6 +4,7 @@ import {
   FunctionDecl,
   InterfaceSection,
   Property,
+  Reference,
   RichComment,
   VariableType,
 } from './types';
@@ -116,12 +117,20 @@ const visitFunctionDecl = (func: FunctionDecl): string => {
     .join(',')}) => any;`;
 };
 
+const visitReference = (reference: Reference): string => {
+  return `${reference.propertyName}: ${reference.interfaceName};`;
+};
+
 export const visitBaseNode = (node: BaseNode): string => {
   if (node.nodeType === 'property') {
     return visitProperty(node);
-  } else {
+  } else if (node.nodeType === 'function') {
     return visitFunctionDecl(node);
+  } else if (node.nodeType === 'reference') {
+    return visitReference(node);
   }
+
+  throw new Error();
 };
 
 export const visitInterfaceSection = (
