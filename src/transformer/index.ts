@@ -4,7 +4,7 @@ import {
   InterfaceSection,
   RichComment,
   VariableType,
-} from '../types';
+} from '../visitor/types';
 import {DocItem, DocPrimitive, DocSection, DocTable} from '../docs/types';
 import pascalcase from 'pascalcase';
 import {parseName} from '../parser';

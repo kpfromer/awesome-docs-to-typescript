@@ -1,38 +1,3 @@
-// Documentation AST Related
-
-type SectionType<T, B> = {nodeType: T} & B;
-
-type SectIonPrimitive = SectionType<
-  'primitive',
-  {
-    name: string;
-    type: string[];
-    information?: string;
-  }
->;
-
-export type SectionArgument = SectionType<
-  'argument',
-  {
-    name: string;
-    children: SectionChild[];
-    information?: string;
-  }
->;
-
-export type SectionChild = SectionArgument | SectIonPrimitive;
-
-export type Section = SectionType<
-  'section',
-  {
-    name: string;
-    arguments: SectionArgument[];
-    description?: string;
-    returns?: string;
-    // seeAlso: string;
-  }
->;
-
 // AST Related
 
 export type ASTNode<T, B = {}> = {nodeType: T} & B;
