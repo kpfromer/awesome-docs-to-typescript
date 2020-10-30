@@ -1,21 +1,47 @@
-// Documentation Related
+// Documentation AST Related
 
-export type SectionBody = {
-  name: string;
-  type: string[];
-  metadata?: string[];
-};
+type SectionType<T, B> = {nodeType: T} & B;
 
-export type Section = {
-  name: string;
-  body: SectionBody[];
-};
+type SectIonPrimitive = SectionType<
+  'primitive',
+  {
+    name: string;
+    type: string[];
+    information?: string;
+  }
+>;
+
+export type SectionArgument = SectionType<
+  'argument',
+  {
+    name: string;
+    children: SectionChild[];
+    information?: string;
+  }
+>;
+
+export type SectionChild = SectionArgument | SectIonPrimitive;
+
+export type Section = SectionType<
+  'section',
+  {
+    name: string;
+    arguments: SectionArgument[];
+    description?: string;
+    returns?: string;
+    // seeAlso: string;
+  }
+>;
 
 // AST Related
 
-export type ASTNode<T, B = {}> = {type: T} & B;
+export type ASTNode<T, B = {}> = {nodeType: T} & B;
 
-export type VariableType = string;
+export type VariableType =
+  | string[]
+  | {
+      [name: string]: VariableType;
+    };
 
 export type RichComment = {
   body: string[];
@@ -50,8 +76,11 @@ export type FunctionDecl = ASTNode<
   }
 >;
 
+export type BaseNode = FunctionDecl | Property;
+
 export type InterfaceSection = {
-  items: (FunctionDecl | Property)[];
+  name: string;
+  items: BaseNode[];
 };
 
 // todo:

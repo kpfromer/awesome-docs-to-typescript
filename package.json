@@ -5,6 +5,7 @@
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
+    "pascalcase": "^1.0.0",
     "puppeteer": "^5.4.1",
     "ts-node": "^9.0.0"
   },
