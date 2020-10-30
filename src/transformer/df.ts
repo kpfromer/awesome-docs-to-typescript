@@ -7,6 +7,7 @@ import {
 } from '../types';
 import {DocItem, DocPrimitive, DocSection, DocTable} from '../docs/types';
 import pascalcase from 'pascalcase';
+import {parseName} from '../parser';
 
 const convertType = (type: DocPrimitive | DocTable): VariableType => {
   if (type.nodeType === 'table') {
@@ -65,19 +66,23 @@ const createComment = (value?: string[]): RichComment | undefined => {
 const docItemToBaseNode = (docItem: DocItem): BaseNode => {
   // TODO: awful.tag
 
-  if (docItem.arguments.length === 1) {
+  // checking if name indicates whether it's a function or just a property
+  const parsedName = parseName(docItem.name);
+
+  if (parsedName.type === 'name') {
     return {
       nodeType: 'property',
       comment: createComment(docItem.description?.split('\n')),
-      name: docItem.name,
+      name: parsedName.name,
       type: convertType(docItem.arguments[0]),
     };
   }
 
+  // parsedName.argumentLayout
   return {
     nodeType: 'function',
     comment: createComment(docItem.description?.split('\n')),
-    name: docItem.name,
+    name: parsedName.name,
     arguments: docItem.arguments.map(arg => ({
       name: arg.name,
       type: convertType(arg),

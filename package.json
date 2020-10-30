@@ -7,12 +7,15 @@
     "cheerio": "^1.0.0-rc.3",
     "pascalcase": "^1.0.0",
     "puppeteer": "^5.4.1",
+    "tokenizr": "^1.6.1",
     "ts-node": "^9.0.0"
   },
   "devDependencies": {
+    "@types/pascalcase": "^1.0.0",
     "@types/cheerio": "^0.22.22",
     "@types/node": "^14.11.2",
     "@types/puppeteer": "^3.0.2",
+    "@types/tokenizr": "^1.5.1",
     "gts": "^3.0.2",
     "typescript": "^4.0.5"
   },

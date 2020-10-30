@@ -1,59 +1,7 @@
 import puppeteer from 'puppeteer';
 import cheerio from 'cheerio';
 import {DocSection, DocItem, DocTable, DocPrimitive} from './types';
-
-const mapElements = <T>(
-  elements: cheerio.Cheerio,
-  func: (el: cheerio.Element) => T
-): T[] => {
-  const data: T[] = [];
-
-  elements.each((i, el) => data.push(func(el)));
-
-  return data;
-};
-
-const groupBy = (
-  $: cheerio.Root,
-  root?: cheerio.Cheerio,
-  ...selectors: string[]
-): cheerio.Cheerio[][] => {
-  if (selectors.length === 0) {
-    return [];
-  }
-
-  const [first, ...rest] = selectors;
-
-  return !!root
-    ? root
-        .children()
-        .toArray()
-        .filter(element => $(element).is(first))
-        .map(element => {
-          const first = $(element);
-          return [first, ...rest.map(selector => first.next(selector))];
-        })
-    : mapElements($(first), element => [
-        $(element).first(),
-        ...rest.map(selector => $(element).next(selector).first()),
-      ]);
-
-  // const groups: cheerio.Cheerio[][] = mapElements(
-  //   $(root).find(first),
-  //   element => {
-  //     const first = $(element);
-  //     return [first, ...rest.map(selector => first.next(selector))];
-  //   }
-  // );
-  // return groups;
-};
-
-// const parseType = ($: cheerio.Root, element: cheerio.Element) => {
-//   return mapElements(
-//     $(propBody).find('.types').first().find('.type'),
-//     element => $(element).text()
-//   )
-// }
+import {groupBy, matchBy} from './helper';
 
 const rawText = (element: cheerio.Cheerio) =>
   element.clone().children().remove().end().text();
@@ -82,96 +30,6 @@ const parseMetadata = (element: cheerio.Cheerio) => {
   </li>
 </ul>
 */
-// const parseArguments = (
-//   $: cheerio.Root,
-//   root: cheerio.Cheerio
-// ): SectionArgument[] => {
-//   return mapElements(root.find('> ul').first().find('> li'), element => {
-//     const name = $(element).find('.parameter').first().text();
-//     const info = rawText($(element));
-
-//     // console.log($(element).text(), $(element).find('> ul').length);
-
-//     // if ($(element).find('> ul').length > 0) {
-//     //   console.log('Children', parseArguments($, $(element)));
-//     // }
-
-//     const type =
-//       $(element).has('> ul').length > 0
-//         ? parseArguments($, $(element).siblings('> ul').first())
-//         : mapElements(
-//             $(element).siblings('.types').first().find('.type'),
-//             element => $(element).text()
-//           );
-
-//     return {
-//       nodeType: 'argument',
-//       name,
-//       children: type,
-//       information: info,
-//     } as SectionArgument;
-//   });
-// };
-
-// const parseSectionChild = (
-//   $: cheerio.Root,
-//   propName: cheerio.Cheerio,
-//   propBody: cheerio.Cheerio
-// ): SectionChild => {
-//   const name = $(propName).find('strong').text();
-
-//   // console.log(parseArgs($(propBody)));
-
-//   // console.log(
-//   //   mapElements($(propBody).find('ul').first().find('li'), element => {
-//   //     const name = $(element).find('.parameter').text();
-//   //     const info = rawText($(element));
-//   //     const type = mapElements(
-//   //       $(propBody).find('.types').first().find('.type'),
-//   //       element => $(element).text()
-//   //     );
-//   //     return {name, info, type};
-//   //   })
-//   // );
-
-//   return {
-//     nodeType: 'argument',
-//     name,
-//     children: mapElements(
-//       $(propBody).find('.types').first().find('.type'),
-//       element => $(element).text()
-//     ),
-//     metadata: parseMetadata(propBody),
-//   };
-// };
-
-// const parseDocs = (html: string): Section[] => {
-//   let data: [name: cheerio.Cheerio, body: cheerio.Cheerio][] = [];
-
-//   const $ = cheerio.load(html);
-
-//   data = mapElements($('.section-header'), element => [
-//     $(element).first(),
-//     $(element).next('.function').first(),
-//   ]);
-
-//   return data.map(([name, body]) => {
-//     const children: SectionArgument[] = groupBy($, body, 'dt', 'dd').map(
-//       ([_, propBody]) => {
-//         return parseArguments($, propBody);
-//       }
-//     );
-
-//     return {
-//       nodeType: 'section',
-//       name: $(name).text(),
-//       arguments: children,
-//       // description:
-//     } as Section;
-//   });
-// };
-
-// const cleanText = (string: string ): string => string.trim().replace()
 
 const parseDocPrimitive = (
   $: cheerio.Root,
@@ -241,6 +99,13 @@ const parseDocItem = (
   //   .filter(el => $(el).prev().text() === 'Type:');
   // console.log({typesList});
 
+  // todo:
+  // console.log(
+  //   matchBy($, undefined, 'h3', 'ul', header =>
+  //     header.text().trim().toLowerCase()
+  //   )
+  // );
+
   return {
     nodeType: 'item',
     // name: title.text(),
@@ -290,19 +155,47 @@ export const parseUrl = async (url: string): Promise<DocSection[]> => {
   }
 };
 
-// export const cleanTree = (section: DocSection): void => {
-//   const cleanItem = (
-//     item: DocPrimitive | DocTable
-//   ): DocPrimitive | DocTable | boolean => {
-//     if (item.nodeType === 'primitive') {
-//       return !!item.name;
-//     } else {
-//       const {table, ...rest} = item;
-//       const newMap = new Map<string, DocPrimitive | DocTable>();
-//       Array.from(table.entries()).filter(([key, value]) => !!key)
-//     }
-//   };
-//   section.items.map(item => {
-//     item.arguments;
-//   });
-// };
+export const cleanTree = (section: DocSection): DocSection => {
+  const cleanItem = (
+    item: DocPrimitive | DocTable
+  ): DocPrimitive | DocTable | undefined => {
+    if (item.nodeType === 'primitive' && !!item.name) {
+      // make a copy
+      return {
+        ...item,
+        type: [...item.type],
+      };
+    } else if (item.nodeType === 'table') {
+      const {table, ...rest} = item;
+      const newTable = Array.from(table.entries()).reduce(
+        (newMap, [key, value]) => {
+          const newValue = cleanItem(value);
+          if (newValue) {
+            newMap.set(key, value);
+          }
+          return newMap;
+        },
+        new Map<string, DocPrimitive | DocTable>()
+      );
+      return {
+        ...rest,
+        table: newTable,
+      };
+    }
+
+    return undefined;
+  };
+  return {
+    nodeType: 'section',
+    title: section.title,
+    items: section.items.map(
+      item =>
+        ({
+          ...item,
+          arguments: item.arguments
+            .map(cleanItem)
+            .filter(item => item !== undefined),
+        } as DocItem)
+    ),
+  };
+};

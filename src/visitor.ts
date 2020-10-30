@@ -111,7 +111,7 @@ const visitArgument = (arg: Argument): string => {
 };
 
 const visitFunctionDecl = (func: FunctionDecl): string => {
-  return `${func.name}: (${func.arguments
+  return `'${func.name}': (${func.arguments
     .map(visitArgument)
     .join(',')}) => any;`;
 };

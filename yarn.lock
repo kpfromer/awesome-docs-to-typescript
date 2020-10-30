@@ -111,6 +111,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/tokenizr@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@types/tokenizr/-/tokenizr-1.5.1.tgz#63c2fd0e213735cc4fa50aa2876cd8b63cade3ba"
+  integrity sha512-8q17OkvdTTXmKpcW28rJhVmnkj1aCm8KcQnPwZUffFmGcY0/ukCBNqqYTUQ+o5sI3dFUAh772IOLV5wEQ9or2g==
+
 "@types/yauzl@^2.9.1":
   version "2.9.1"
   resolved "https://registry.yarnpkg.com/@types/yauzl/-/yauzl-2.9.1.tgz#d10f69f9f522eef3cf98e30afb684a1e1ec923af"
@@ -2176,6 +2181,11 @@ to-regex-range@^5.0.1:
   integrity sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==
   dependencies:
     is-number "^7.0.0"
+
+tokenizr@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/tokenizr/-/tokenizr-1.6.1.tgz#6728b7c07627b0b10ae9aaa31d84cfd7599f01b3"
+  integrity sha512-QraqqQzRRcp4RwefncJY680coxwfbKZpT4CCwmeA3qhnUveurlyd4RjrishFqe3wDp+XrvLfA/pPtZlY/yTZIQ==
 
 trim-newlines@^3.0.0:
   version "3.0.0"

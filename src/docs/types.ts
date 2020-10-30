@@ -13,7 +13,7 @@ export type DocTable = DocNode<
   'table',
   {
     name: string;
-    table: Map<string, DocPrimitive | DocTable>;
+    table: Map<string, DocType>;
   }
 >;
 
@@ -21,12 +21,14 @@ export type DocItem = DocNode<
   'item',
   {
     name: string;
-    arguments: (DocPrimitive | DocTable)[];
+    arguments: DocType[];
 
     description?: string;
     returns?: string;
   }
 >;
+
+export type DocType = DocPrimitive | DocTable;
 
 export type DocSection = DocNode<
   'section',
