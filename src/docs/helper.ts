@@ -20,7 +20,7 @@ export const groupBy = (
 
   const [first, ...rest] = selectors;
 
-  return !!root
+  return root
     ? root
         .children()
         .toArray()

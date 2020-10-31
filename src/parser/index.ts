@@ -49,6 +49,10 @@ export const parseName = (
       args.push(arg.text);
     }
 
+    const isSelf = !tokens
+      .slice(0, index - 1)
+      .some(token => token.isA('char', ':'));
+
     return {
       type: 'function',
       // todo: handle : and . differently
@@ -57,7 +61,7 @@ export const parseName = (
         .filter(token => token.isA('id'))
         .map(token => token.text),
       argumentLayout: args,
-      isSelf: false,
+      isSelf,
     };
   }
 

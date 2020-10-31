@@ -8,6 +8,7 @@ import {
   InterfaceSection,
   Reference,
 } from '../visitor/types';
+import {UpdateMap} from './node-map';
 
 export class Transformer {
   private interfaceMap = new Map<string, InterfaceSection>();
@@ -68,6 +69,17 @@ export class Transformer {
   //   };
   // };
 
+  private getName(node: BaseNode): string {
+    switch (node.nodeType) {
+      case 'function':
+        return node.name;
+      case 'property':
+        return node.name;
+      case 'reference':
+        return node.propertyName;
+    }
+  }
+
   private docItemToBaseNode(docItem: DocItem): BaseNode {
     // TODO: awful.tag
 
@@ -78,7 +90,7 @@ export class Transformer {
       return {
         nodeType: 'property',
         comment: this.createComment(docItem.description?.split('\n')),
-        name: parsedName.name,
+        name: `'${parsedName.name}'`,
         type: this.convertType(docItem.arguments[0]),
       };
     }
@@ -90,7 +102,14 @@ export class Transformer {
     } else if (parsedName.name.length === 1) {
       return {
         nodeType: 'function',
-        comment: this.createComment(docItem.description?.split('\n')),
+        // todo:
+        // comment: this.createComment(docItem.description?.split('\n')),
+        comment: parsedName.isSelf
+          ? {
+              body: [],
+              tags: ['noSelf'],
+            }
+          : undefined,
         name: parsedName.name[0],
         arguments: docItem.arguments.map(arg => ({
           name: arg.name,
@@ -98,6 +117,7 @@ export class Transformer {
         })),
       };
     } else {
+      console.log('IS SELF', parsedName.isSelf, docItem.name);
       // name = ["awful", "sub", "level"]
       const rootName = parsedName.name.pop()!;
       // name = ["level", "sub", "awful"]
@@ -115,12 +135,12 @@ export class Transformer {
           } else {
             interfaceDefinition = {
               name,
-              items: [],
+              items: new UpdateMap(),
             } as InterfaceSection;
             this.interfaceMap.set(name, interfaceDefinition);
           }
           // Add previous type to interface
-          interfaceDefinition.items.push(prevType);
+          interfaceDefinition.items.set(this.getName(prevType), prevType);
 
           // Create reference to that interface
           const reference: Reference = {
@@ -133,9 +153,16 @@ export class Transformer {
         },
         {
           nodeType: 'function',
-          comment: undefined,
+          // todo: get working
+          comment: parsedName.isSelf
+            ? {
+                body: [],
+                tags: ['noSelf'],
+              }
+            : undefined,
           // TODO:
           // comment: this.createComment(docItem.description?.split('\n')),
+
           name: rootName,
           arguments: docItem.arguments.map(arg => ({
             name: arg.name,
@@ -153,20 +180,23 @@ export class Transformer {
     const name = `${pascalcase(section.title)}Interface`;
     const items = section.items
       .filter(item => item.arguments.length > 0)
-      .map(item => this.docItemToBaseNode(item));
+      .map(item => {
+        const node = this.docItemToBaseNode(item);
+        return [this.getName(node), node];
+      }) as [string, BaseNode][];
 
     this.interfaceMap.set(name, {
       name,
-      items,
+      items: new UpdateMap(items),
     });
   }
 
-  get interfaces(): InterfaceSection[] {
+  public interfaces(): InterfaceSection[] {
     return Array.from(this.interfaceMap.values());
   }
 
-  public run(section: DocSection): InterfaceSection[] {
+  public add(section: DocSection): this {
     this.visitDocSection(section);
-    return this.interfaces;
+    return this;
   }
 }

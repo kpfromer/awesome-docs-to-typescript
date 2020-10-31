@@ -104,6 +104,11 @@
   resolved "https://registry.yarnpkg.com/@types/pascalcase/-/pascalcase-1.0.0.tgz#7f655b653e2ed207e282e13b6d2f4cfe5e93c5b1"
   integrity sha512-GUljFjs6pnZuxxmStKR1uDWIcGQSVdmUedFfreyJGU0owXW096kvYxf+6T/e1I6r3N8gNrqk3PETHqZwlR2xVg==
 
+"@types/prettier@^2.1.5":
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.1.5.tgz#b6ab3bba29e16b821d84e09ecfaded462b816b00"
+  integrity sha512-UEyp8LwZ4Dg30kVU2Q3amHHyTn1jEdhCIE59ANed76GaT1Vp76DD3ZWSAxgCrw6wJ0TqeoBpqmfUHiUDPs//HQ==
+
 "@types/puppeteer@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@types/puppeteer/-/puppeteer-3.0.2.tgz#20085220593b560c7332b6d46aecaf81ae263540"

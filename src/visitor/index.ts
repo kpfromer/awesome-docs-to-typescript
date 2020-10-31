@@ -9,59 +9,26 @@ import {
   VariableType,
 } from './types';
 
-// Documentation AST Related
-// export const visitDocType = (type: string) => {
-//   switch (type) {
-//     case 'integer':
-//       return 'number';
-//     case 'nil':
-//       return 'undefined';
-//     case '':
-//       return 'unknown';
-//     default:
-//       return type;
-//   }
-// };
-
-// export const visitSectionBody = ({
-//   name,
-//   type,
-//   metadata,
-// }: SectionBody): string => {
-//   const typeString =
-//     type.length > 0 ? type.map(visitDocType).join(' | ') : 'unknown';
-
-//   const metadataString = metadata?.reduce(
-//     (prev, curr) => `${prev}\n*${curr}`,
-//     ''
-//   );
-
-//   return `/**${metadataString}\n*/\n${name}: ${typeString};`;
-// };
-
-// export const visitSection = ({name, body}: Section): string => {
-//   const bodyString = body.map(visitSectionBody).join('\n\n');
-//   return `interface ${name.replace(/\s+/g, '_')}Type \n{${bodyString}\n}`;
-// };
-
 // AST Related
 
+const joinComment = (value: string, comment?: string): string => {
+  if (comment) {
+    return `${comment}\n${value}`;
+  }
+  return value;
+};
+
 const visitRichComment = (comment: RichComment): string | undefined => {
-  console.log(comment);
   if (comment.body.length === 0 && comment.tags.length === 0) {
     return undefined;
   }
 
-  const bodyContent = comment.body.reduce(
-    (prev, curr) => `${prev}\n* ${curr}`,
-    ''
-  );
-  const tagContent = comment.tags.reduce(
-    (prev, curr) => `${prev}\n* @${curr}`,
+  const lines = [...comment.body, ...comment.tags.map(tag => `@${tag}`)].reduce(
+    (prev, line) => `${prev}\n* ${line}`,
     ''
   );
 
-  return `/**${bodyContent}\n*\n${tagContent}*/`;
+  return `/**${lines}\n*/`;
 };
 
 const visitVariableType = (type: VariableType): string => {
@@ -84,37 +51,34 @@ const visitVariableType = (type: VariableType): string => {
       .join(' | ');
   }
 
-  console.log(type, Object.entries(type));
-
   const items = Object.entries(type).map(
     ([key, values]) => `${key}: ${visitVariableType(values)}`
   );
 
-  // const items = Object.entries(type).map(
-  //   ([key, values]) => `${key}: ${values.map(visitVariableType)}`
-  // );
-
   return `{\n${items.join(', ')}\n}`;
-
-  // return `{\n${Object.entries(type)
-  //   .map(([key, value]) => `${key}: ${value.map(visitVariableType)}`)
-  //   .join(',\n')}\n}`;
 };
 
 const visitProperty = (prop: Property): string => {
-  let string = `${prop.name}: ${visitVariableType(prop.type)};`;
+  const string = `${prop.name}: ${visitVariableType(prop.type)};`;
 
   return prop.comment ? `${visitRichComment(prop.comment)}\n${string}` : string;
 };
 
 const visitArgument = (arg: Argument): string => {
-  return `${arg.name}: ${visitVariableType(arg.type)}`;
+  // TODO: fix arg.comment type
+  return joinComment(
+    `${arg.name}: ${visitVariableType(arg.type)}`,
+    arg.comment ? arg.comment : undefined
+  );
 };
 
 const visitFunctionDecl = (func: FunctionDecl): string => {
-  return `'${func.name}': (${func.arguments
-    .map(visitArgument)
-    .join(',')}) => any;`;
+  return joinComment(
+    `'${func.name}': (${func.arguments
+      .map(visitArgument)
+      .join(',')}) => unknown;`,
+    func.comment ? visitRichComment(func.comment) : undefined
+  );
 };
 
 const visitReference = (reference: Reference): string => {
@@ -136,8 +100,11 @@ export const visitBaseNode = (node: BaseNode): string => {
 export const visitInterfaceSection = (
   interfaceSection: InterfaceSection
 ): string => {
-  console.log(interfaceSection.items.map(visitBaseNode));
-  return `interface ${interfaceSection.name} {\n${interfaceSection.items
-    .map(visitBaseNode)
-    .join('\n')}\n}`;
+  const interfaceItems = Array.from(interfaceSection.items.values()).map(
+    visitBaseNode
+  );
+
+  return `interface ${interfaceSection.name} {\n${interfaceItems.join(
+    '\n'
+  )}\n}`;
 };

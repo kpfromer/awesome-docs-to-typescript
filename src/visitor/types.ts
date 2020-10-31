@@ -1,5 +1,7 @@
 // AST Related
 
+import {UpdateMap} from 'src/transformer/node-map';
+
 export type ASTNode<T, B = {}> = {nodeType: T} & B;
 
 export type Reference = ASTNode<
@@ -54,23 +56,5 @@ export type BaseNode = FunctionDecl | Property | Reference;
 
 export type InterfaceSection = {
   name: string;
-  items: BaseNode[];
+  items: UpdateMap<string, BaseNode>;
 };
-
-// todo:
-export type Nested = {};
-
-/*
-
-awful.wibar => 
-
-interface wibar {
-
-}
-
-interface awful {
-  wibar: wibar;
-}
-
-
-*/
